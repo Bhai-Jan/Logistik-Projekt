@@ -1,0 +1,743 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8848 Altitude - Digital Product Passport</title>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    /* Tailwind CSS Generated Styles (Minified) */
+    *,::before,::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::before,::after{--tw-content:''}html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;font-weight:inherit;line-height:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,[type=button],[type=reset],[type=submit]{-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dl,dd,h1,h2,h3,h4,h5,h6,hr,figure,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}ol,ul,menu{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}button,[role=button]{cursor:pointer}:disabled{cursor:default}img,svg,video,canvas,audio,iframe,embed,object{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]{display:none}[type=checkbox],[type=radio]{width:1rem;height:1rem;border-width:1px;--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity));padding:0}[type=checkbox]{border-radius:0.25rem;-webkit-appearance:none;appearance:none}[type=checkbox]:checked{background-image:url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e")}select{display:block;font-size:1rem;line-height:1.5rem;padding-top:0.375rem;padding-bottom:0.375rem;padding-left:0.75rem;padding-right:2.5rem;border-width:1px;border-radius:0.375rem;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-position:right 0.5rem center;background-repeat:no-repeat;background-size:1.25em 1.25em;background-color:#fff;--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity));--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity))}select:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000);--tw-ring-opacity:1;--tw-ring-color:rgb(59 130 246 / var(--tw-ring-opacity));outline:2px solid transparent;outline-offset:2px}.container{width:100%}@media (min-width: 640px){.container{max-width:640px}}@media (min-width: 768px){.container{max-width:768px}}@media (min-width: 1024px){.container{max-width:1024px}}@media (min-width: 1280px){.container{max-width:1280px}}@media (min-width: 1536px){.container{max-width:1536px}}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0}.bottom-0{bottom:0}.left-0{left:0}.right-0{right:0}.top-0{top:0}.z-50{z-index:50}.-my-2{margin-top:-0.5rem;margin-bottom:-0.5rem}.mx-auto{margin-left:auto;margin-right:auto}.my-2{margin-top:0.5rem;margin-bottom:0.5rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.mr-2{margin-right:0.5rem}.mr-3{margin-right:0.75rem}.mt-1{margin-top:0.25rem}.mt-5{margin-top:1.25rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.grid{display:grid}.hidden{display:none}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-48{height:12rem}.h-56{height:14rem}.h-full{height:100%}.min-h-screen{min-height:100vh}.w-3{width:0.75rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-full{width:100%}.max-w-md{max-width:28rem}.max-h-\[400px\]{max-height:400px}.flex-1{flex:1 1 0%}.flex-shrink-0{flex-shrink:0}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.translate-y-0{--tw-translate-y:0px;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-98{--tw-scale-x:.98;--tw-scale-y:.98;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-105{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-110{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.appearance-none{-webkit-appearance:none;appearance:none}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-2xl{border-radius:1rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-blue-100{--tw-border-opacity:1;border-color:rgb(219 234 254 / var(--tw-border-opacity))}.border-gray-100{--tw-border-opacity:1;border-color:rgb(243 244 246 / var(--tw-border-opacity))}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity))}.border-amber-100{--tw-border-opacity:1;border-color:rgb(254 243 199 / var(--tw-border-opacity))}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity))}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity))}.bg-gray-50{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity))}.bg-gray-100{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity))}.bg-green-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity))}.bg-opacity-50{--tw-bg-opacity:0.5}.bg-opacity-90{--tw-bg-opacity:0.9}.bg-gradient-to-r{--tw-gradient-stops:from var(--tw-gradient-from),var(--tw-gradient-to) var(--tw-gradient-to-position);background-image:linear-gradient(to right,var(--tw-gradient-stops))}.from-blue-50{--tw-gradient-from:#eff6ff var(--tw-gradient-from-position);--tw-gradient-to:rgb(239 246 255 / 0) var(--tw-gradient-to-position)}.from-blue-500{--tw-gradient-from:#3b82f6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(59 130 246 / 0) var(--tw-gradient-to-position)}.from-green-500{--tw-gradient-from:#22c55e var(--tw-gradient-from-position);--tw-gradient-to:rgb(34 197 94 / 0) var(--tw-gradient-to-position)}.from-purple-500{--tw-gradient-from:#a855f7 var(--tw-gradient-from-position);--tw-gradient-to:rgb(168 85 247 / 0) var(--tw-gradient-to-position)}.to-blue-500{--tw-gradient-to:#3b82f6 var(--tw-gradient-to-position)}.to-green-50{--tw-gradient-to:#f0fdf4 var(--tw-gradient-to-position)}.to-indigo-600{--tw-gradient-to:#4f46e5 var(--tw-gradient-to-position)}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-4{padding-left:1rem;padding-right:1rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-8{padding-top:2rem;padding-bottom:2rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.text-center{text-align:center}.text-right{text-align:right}.font-sans{font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"}.text-xs{font-size:0.75rem;line-height:1rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.font-medium{font-weight:500}.font-semibold{font-weight:600}.font-bold{font-weight:700}.uppercase{text-transform:uppercase}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9 / var(--tw-text-opacity))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity))}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity))}.text-green-600{--tw-text-opacity:1;color:rgb(22 163 74 / var(--tw-text-opacity))}.text-green-700{--tw-text-opacity:1;color:rgb(21 128 61 / var(--tw-text-opacity))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:bg-blue-100:hover{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity))}.hover\:bg-gray-100:hover{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity))}.hover\:scale-105:hover{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:scale-110:hover{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000);--tw-ring-opacity:1;--tw-ring-color:rgb(59 130 246 / var(--tw-ring-opacity))}
+
+    /* Custom Styles */
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4f0f5 100%);
+      color: #1f2937;
+      overscroll-behavior: none;
+    }
+
+    .mountain-bg {
+      background: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mountain-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.1;
+      background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern patternUnits='userSpaceOnUse' id='b' width='540' height='450' x='0' y='0' viewBox='0 0 1080 900'%3E%3Cg fill-opacity='0.5'%3E%3Cpolygon fill='%23FFF' points='90 150 0 300 180 300'/%3E%3Cpolygon points='90 150 180 0 0 0'/%3E%3Cpolygon fill='%23AAA' points='270 150 360 0 180 0'/%3E%3Cpolygon fill='%23DDD' points='450 150 360 300 540 300'/%3E%3Cpolygon fill='%23999' points='450 150 540 0 360 0'/%3E%3Cpolygon points='630 150 540 300 720 300'/%3E%3Cpolygon fill='%23DDD' points='630 150 720 0 540 0'/%3E%3Cpolygon fill='%23444' points='810 150 720 300 900 300'/%3E%3Cpolygon fill='%23FFF' points='810 150 900 0 720 0'/%3E%3Cpolygon fill='%23DDD' points='990 150 900 300 1080 300'/%3E%3Cpolygon fill='%23444' points='990 150 1080 0 900 0'/%3E%3Cpolygon fill='%23DDD' points='90 450 0 600 180 600'/%3E%3Cpolygon points='90 450 180 300 0 300'/%3E%3Cpolygon fill='%23666' points='270 450 180 600 360 600'/%3E%3Cpolygon fill='%23AAA' points='270 450 360 300 180 300'/%3E%3Cpolygon fill='%23DDD' points='450 450 360 600 540 600'/%3E%3Cpolygon fill='%23999' points='450 450 540 300 360 300'/%3E%3Cpolygon fill='%23999' points='630 450 540 600 720 600'/%3E%3Cpolygon fill='%23FFF' points='630 450 720 300 540 300'/%3E%3Cpolygon points='810 450 720 600 900 600'/%3E%3Cpolygon fill='%23DDD' points='810 450 900 300 720 300'/%3E%3Cpolygon fill='%23AAA' points='990 450 900 600 1080 600'/%3E%3Cpolygon fill='%23444' points='990 450 1080 300 900 300'/%3E%3Cpolygon fill='%23222' points='90 750 0 900 180 900'/%3E%3Cpolygon points='270 750 180 900 360 900'/%3E%3Cpolygon fill='%23DDD' points='270 750 360 600 180 600'/%3E%3Cpolygon points='450 750 540 600 360 600'/%3E%3Cpolygon points='630 750 540 900 720 900'/%3E%3Cpolygon fill='%23444' points='630 750 720 600 540 600'/%3E%3Cpolygon fill='%23AAA' points='810 750 720 900 900 900'/%3E%3Cpolygon fill='%23666' points='810 750 900 600 720 600'/%3E%3Cpolygon fill='%23999' points='990 750 900 900 1080 900'/%3E%3Cpolygon fill='%23999' points='180 0 90 150 270 150'/%3E%3Cpolygon fill='%23444' points='360 0 270 150 450 150'/%3E%3Cpolygon fill='%23FFF' points='540 0 450 150 630 150'/%3E%3Cpolygon points='900 0 810 150 990 150'/%3E%3Cpolygon fill='%23222' points='0 300 -90 450 90 450'/%3E%3Cpolygon fill='%23FFF' points='0 300 90 150 -90 150'/%3E%3Cpolygon fill='%23FFF' points='180 300 90 450 270 450'/%3E%3Cpolygon fill='%23666' points='180 300 270 150 90 150'/%3E%3Cpolygon fill='%23222' points='360 300 270 450 450 450'/%3E%3Cpolygon fill='%23FFF' points='360 300 450 150 270 150'/%3E%3Cpolygon fill='%23444' points='540 300 450 450 630 450'/%3E%3Cpolygon fill='%23222' points='540 300 630 150 450 150'/%3E%3Cpolygon fill='%23AAA' points='720 300 630 450 810 450'/%3E%3Cpolygon fill='%23666' points='720 300 810 150 630 150'/%3E%3Cpolygon fill='%23FFF' points='900 300 810 450 990 450'/%3E%3Cpolygon fill='%23999' points='900 300 990 150 810 150'/%3E%3Cpolygon points='0 600 -90 750 90 750'/%3E%3Cpolygon fill='%23666' points='0 600 90 450 -90 450'/%3E%3Cpolygon fill='%23AAA' points='180 600 90 750 270 750'/%3E%3Cpolygon fill='%23444' points='180 600 270 450 90 450'/%3E%3Cpolygon fill='%23444' points='360 600 270 750 450 750'/%3E%3Cpolygon fill='%23999' points='360 600 450 450 270 450'/%3E%3Cpolygon fill='%23666' points='540 600 630 450 450 450'/%3E%3Cpolygon fill='%23222' points='720 600 630 750 810 750'/%3E%3Cpolygon fill='%23FFF' points='900 600 810 750 990 750'/%3E%3Cpolygon fill='%23222' points='900 600 990 450 810 450'/%3E%3Cpolygon fill='%23DDD' points='0 900 90 750 -90 750'/%3E%3Cpolygon fill='%23444' points='180 900 270 750 90 750'/%3E%3Cpolygon fill='%23FFF' points='360 900 450 750 270 750'/%3E%3Cpolygon fill='%23AAA' points='540 900 630 750 450 750'/%3E%3Cpolygon fill='%23FFF' points='720 900 810 750 630 750'/%3E%3Cpolygon fill='%23222' points='900 900 990 750 810 750'/%3E%3Cpolygon fill='%23222' points='1080 300 990 450 1170 450'/%3E%3Cpolygon fill='%23FFF' points='1080 300 1170 150 990 150'/%3E%3Cpolygon points='1080 600 990 750 1170 750'/%3E%3Cpolygon fill='%23666' points='1080 600 1170 450 990 450'/%3E%3Cpolygon fill='%23DDD' points='1080 900 1170 750 990 750'/%3E%3C/g%3E%3C/pattern%3E%3C/defs%3E%3Crect x='0' y='0' fill='url(%23b)' width='100%25' height='100%25'/%3E%3C/svg%3E");
+    }
+
+    .pie-chart {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: conic-gradient(
+        #3b82f6 0% 42%,
+        #10b981 42% 60%,
+        #f59e0b 60% 85%,
+        #8b5cf6 85% 99%,
+        #ec4899 99% 100%
+      );
+      position: relative;
+      margin: 0 auto;
+    }
+
+    .pie-chart::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: #ffffff;
+      border-radius: 50%;
+    }
+
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .material-pill {
+      transition: transform 0.2s ease;
+    }
+
+    .material-pill:active {
+      transform: scale(0.98);
+    }
+
+    .fade-transition {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .fade-out {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+
+    .fade-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .jacket-selector-container {
+      position: relative;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px;
+    }
+
+    .jacket-selector-label {
+      position: absolute;
+      top: -10px;
+      left: 16px;
+      background: #4f46e5;
+      color: white;
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .hero-image-container {
+      position: relative;
+      overflow: hidden;
+      border-radius: 1rem 1rem 0 0;
+    }
+
+    .hero-image-container::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent 50%);
+      pointer-events: none;
+    }
+
+    .jacket-image {
+      width: 100%;
+      height: auto;
+      max-height: 400px;
+      object-fit: contain;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
+    .pulse-animation {
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 3px;
+    }
+
+    /* Prevent horizontal scroll */
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="mountain-bg text-white py-8 px-4">
+    <div class="max-w-md mx-auto text-center">
+      <h1 class="text-3xl font-bold mb-3">Digital Product Passport</h1>
+      <p class="text-base mb-6">Discover the story behind your premium outdoor gear</p>
+      <div class="jacket-selector-container">
+        <div class="jacket-selector-label">SELECT JACKET</div>
+        <div class="relative">
+          <select 
+            id="jacketSelector"
+            class="w-full bg-white border border-gray-200 text-blue-800 py-3 px-4 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm pulse-animation"
+            aria-label="Select your jacket"
+          >
+            <option value="audrey">Audrey (2460)</option>
+            <option value="saga">Saga (5139)</option>
+          </select>
+          <svg class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-800" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 pb-8">
+    <!-- Hero Section -->
+    <section id="hero" class="py-6 px-4">
+      <div class="max-w-md mx-auto">
+        <div class="bg-white rounded-2xl shadow-lg card overflow-hidden fade-transition">
+          <div class="hero-image-container">
+            <img 
+              id="jacketImage" 
+              src="https://www.8848altitude.com/storage/D55660F66112F85C7FA8417023248D049FFFCE23FAB58707DC1A411F9CC8782C/8a866c08bf3a44ebbea427d9a6f24008/jpg/media/7f8b43bc7f67473fa6badf658870e1cc/246084_5.jpg" 
+              alt="White Audrey jacket (Model 2460)" 
+              class="w-full object-contain max-h-[400px] rounded-t-2xl fade-transition shadow-md hover:scale-105 transition-transform jacket-image"
+            >
+          </div>
+          <div class="bg-gradient-to-r from-green-500 to-blue-500 px-5 py-5 text-white">
+            <h2 id="jacketTitle" class="text-xl font-bold">Audrey at a Glance</h2>
+            <p id="jacketSubtitle" class="text-xs">Model 2460 | Built for adventures</p>
+          </div>
+          <div class="grid grid-cols-2 gap-3 p-5">
+            <div class="bg-gray-50 rounded-lg p-3 text-center">
+              <p class="text-xs uppercase text-gray-500 font-medium">Origin</p>
+              <p id="jacketOrigin" class="font-semibold text-base">China</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3 text-center">
+              <p class="text-xs uppercase text-gray-500 font-medium">Weight</p>
+              <p id="jacketWeight" class="font-semibold text-base">1.5 kg</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3 text-center">
+              <p class="text-xs uppercase text-gray-500 font-medium">CO₂</p>
+              <p id="jacketCO2" class="font-semibold text-base">0.13 kg</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3 text-center">
+              <p class="text-xs uppercase text-gray-500 font-medium">Production</p>
+              <p id="jacketProduction" class="font-semibold text-base">1,695 units</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Materials Section -->
+    <section id="materials" class="py-6 px-4">
+      <div class="max-w-md mx-auto">
+        <h2 class="text-xl font-bold mb-5 text-blue-800">Material Composition</h2>
+        <div class="bg-white rounded-2xl shadow-lg card p-5 fade-transition">
+          <div id="pieChart" class="pie-chart mb-5"></div>
+          <div class="space-y-2 mb-5" id="legendContainer"></div>
+          <div class="space-y-3" id="materialsList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Journey Section -->
+    <section id="journey" class="py-6 px-4">
+      <div class="max-w-md mx-auto">
+        <h2 class="text-xl font-bold mb-5 text-blue-800">The Epic Journey</h2>
+        <div class="bg-white rounded-2xl shadow-lg card p-5 fade-transition">
+          <p class="text-sm text-gray-600 mb-4">Your jacket's materials traveled across continents to Dashiqiao, China!</p>
+          <div class="space-y-3" id="journeyRoutes"></div>
+          <div class="mt-5 p-4 bg-amber-50 rounded-lg border border-amber-100">
+            <p class="font-medium text-amber-800 text-sm">Final Destination</p>
+            <p class="text-xs text-amber-700" id="finalShipping">Dalian to Gothenburg (80 days by boat)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sustainability Section -->
+    <section id="sustainability" class="py-6 px-4">
+      <div class="max-w-md mx-auto">
+        <h2 class="text-xl font-bold mb-5 text-blue-800">Eco-Friendly Features</h2>
+        <div class="bg-white rounded-2xl shadow-lg card p-5 space-y-4 fade-transition">
+          <div class="flex items-start">
+            <div class="bg-green-100 p-2 rounded-full mr-3">
+              <svg class="h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-base">Built to Last</h3>
+              <p class="text-xs text-gray-600">Designed for 10-20 years of use, ideal for second-hand or heirloom gear.</p>
+            </div>
+          </div>
+          <div class="flex items-start">
+            <div class="bg-green-100 p-2 rounded-full mr-3">
+              <svg class="h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-base">Premium Materials</h3>
+              <p class="text-xs text-gray-600">Uses eco-friendly materials like recycled polyester and DuPont Sorona fiber.</p>
+            </div>
+          </div>
+          <div class="flex items-start">
+            <div class="bg-green-100 p-2 rounded-full mr-3">
+              <svg class="h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-base">Low Carbon Footprint</h3>
+              <p class="text-xs text-gray-600">Container vessel shipping reduces CO₂ emissions compared to air freight.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fun Fact Section -->
+    <section id="funfact" class="py-6 px-4">
+      <div class="max-w-md mx-auto">
+        <div class="bg-white bg-opacity-90 rounded-2xl shadow-lg card p-6 border border-gray-100 fade-transition">
+          <h2 class="text-lg font-bold mb-2 text-gray-800">Mind-Blowing Fact!</h2>
+          <p id="funFactText" class="text-sm text-gray-800">The insulation in your Audrey jacket uses innovative Sorona fiber that requires 30% less energy to produce than traditional materials!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-6 px-4">
+      <div class="max-w-md mx-auto">
+        <h2 class="text-xl font-bold mb-5 text-blue-800">Connect With Us</h2>
+        <div class="bg-white rounded-2xl shadow-lg card p-5 flex justify-center gap-4">
+          <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" aria-label="Connect via WhatsApp" class="p-2 rounded-full hover:scale-110 transition-transform">
+            <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.553 4.183 1.6 6.001L0 24l6.198-1.6A11.932 11.932 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.822 0-3.584-.49-5.12-1.414l-.363-.214-3.678.948.948-3.678-.214-.363A9.956 9.956 0 0 1 2 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10zm5.598-6.75c-.305-.152-1.82-.904-2.1-.998-.28-.094-.486-.047-.67.047-.188.094-.72.998-.886 1.2-.165.2-.33.2-.61.047-.282-.152-1.188-.517-2.258-1.658-.83-.884-1.39-1.978-1.555-2.305-.165-.33-.018-.508.124-.67.128-.141.282-.33.47-.517.188-.188.235-.47.235-.67s-.047-.376-.235-.564c-.188-.188-.47-.47-.67-.564-.2-.094-.423-.047-.61-.047-.188 0-.47.047-.72.235-.258.188-.904.894-.904 2.164s.924 2.54 1.058 2.728c.14.188 1.88 2.868 4.558 4.028.704.305 1.25.47 1.68.61.705.235 1.344.2 1.85.12.564-.094 1.82-.745 2.077-1.46.258-.705.258-1.317.128-1.46-.13-.14-.305-.235-.61-.376z"/>
+            </svg>
+          </button>
+          <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" aria-label="Connect via Instagram" class="p-2 rounded-full hover:scale-110 transition-transform">
+            <svg class="h-6 w-6 text-pink-600" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 4.8c4.04 0 7.2 3.16 7.2 7.2s-3.16 7.2-7.2 7.2-7.2-3.16-7.2-7.2 3.16-7.2 7.2-7.2zm0 12c2.64 0 4.8-2.16 4.8-4.8s-2.16-4.8-4.8-4.8-4.8 2.16-4.8 4.8 2.16 4.8 4.8 4.8zm5.28-9.12c0 .528-.432.96-.96.96s-.96-.432-.96-.96.432-.96.96-.96.96.432.96.96z"/>
+            </svg>
+          </button>
+          <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" aria-label="Connect via Facebook" class="p-2 rounded-full hover:scale-110 transition-transform">
+            <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0C5.373 0 0 5.373 0 12c0 6.016 4.432 10.984 10.206 11.852V15.18h-2.969v-3.154h2.969v-2.406c0-2.969 1.775-4.594 4.594-4.594 1.312 0 2.438.094 2.75.141v3.188h-1.875c-1.5 0-1.781.712-1.781 1.781v2.344h3.375l-.469 3.154h-2.906v8.672C19.568 22.984 24 18.016 24 12c0-6.627-5.373-12-12-12z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-6 px-4 bg-gray-50">
+    <div class="max-w-md mx-auto text-center text-gray-500 text-xs">
+      <p>8848 Altitude Digital Product Passport</p>
+      <p class="mt-1">Compliant with EU 2027 directives</p>
+    </div>
+  </footer>
+
+  <!-- Materials Modal -->
+  <div id="materialsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 hidden" role="dialog" aria-labelledby="modalTitle">
+    <div class="bg-white rounded-2xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+      <div class="sticky top-0 bg-white p-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 id="modalTitle" class="text-base font-bold">All Materials in Audrey</h3>
+        <button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-100" aria-label="Close modal">
+          <svg class="h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="p-4">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="border-b">
+              <th class="text-left py-2 font-medium">Material</th>
+              <th class="text-left py-2 font-medium">Type</th>
+              <th class="text-left py-2 font-medium">Origin</th>
+              <th class="text-right py-2 font-medium">Weight</th>
+            </tr>
+          </thead>
+          <tbody id="materialTableBody"></tbody>
+        </table>
+        <div class="mt-5 bg-blue-50 p-4 rounded-lg">
+          <h4 class="font-semibold text-blue-800 text-sm mb-2">Supplier Information</h4>
+          <ul class="space-y-2 text-xs" id="suppliersList"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    const jacketData = {
+      audrey: {
+        title: "Audrey at a Glance",
+        subtitle: "Model 2460 | Built for adventures",
+        origin: "China",
+        weight: "1.50 kg",
+        co2: "0.13 kg",
+        production: "1,695 units",
+        image: "https://www.8848altitude.com/storage/D55660F66112F85C7FA8417023248D049FFFCE23FAB58707DC1A411F9CC8782C/8a866c08bf3a44ebbea427d9a6f24008/jpg/media/7f8b43bc7f67473fa6badf658870e1cc/246084_5.jpg",
+        imageAlt: "White Audrey jacket (Model 2460)",
+        materials: [
+          {
+            name: "Shell Fabric: FY19030-16",
+            composition: "88% Nylon, 12% Spandex",
+            weight: "0.40746 kg",
+            type: "Fabric",
+            origin: "Suzhou, China",
+            percentage: 27.16,
+            color: "#3b82f6"
+          },
+          {
+            name: "Lining: DMF002-2SDC",
+            composition: "100% Polyester",
+            weight: "0.26086 kg",
+            type: "Lining",
+            origin: "Suzhou, China",
+            percentage: 17.39,
+            color: "#10b981"
+          },
+          {
+            name: "Insulation: STS-M3F",
+            composition: "76% Eco-M3F, 24% Sorona Fiber",
+            weight: "0.15445 kg",
+            type: "Insulation",
+            origin: "Quanzhou, China",
+            percentage: 10.30,
+            color: "#f59e0b"
+          },
+          {
+            name: "Zippers & Trims",
+            composition: "Mixed (Polyester, Nylon, Polyurethane)",
+            weight: "0.58954 kg",
+            type: "Hardware",
+            origin: "Shenzhen, China",
+            percentage: 39.30,
+            color: "#8b5cf6"
+          },
+          {
+            name: "Labels",
+            composition: "Mixed (Polyester, Cotton)",
+            weight: "0.08769 kg",
+            type: "Label",
+            origin: "Hong Kong, China",
+            percentage: 5.85,
+            color: "#ec4899"
+          }
+        ],
+        suppliers: [
+          { name: "Flytec", material: "Shell Fabric", location: "Suzhou, China" },
+          { name: "Smartex", material: "Lining", location: "Suzhou, China" },
+          { name: "CN YTL", material: "Insulation", location: "Quanzhou, China" },
+          { name: "YKK", material: "Zippers", location: "Shenzhen, China" },
+          { name: "Rudholm", material: "Labels", location: "Hong Kong, China" }
+        ],
+        journeys: [
+          { from: "Suzhou", to: "Dashiqiao", distance: "1,708 km", transport: "Truck" },
+          { from: "Pocheon", to: "Dashiqiao", distance: "945 km", transport: "Vessel + Truck" },
+          { from: "Quanzhou", to: "Dashiqiao", distance: "1,814 km", transport: "Truck" }
+        ],
+        finalShipping: "Dalian to Gothenburg (80 days by boat)",
+        funFact: "The insulation in your Audrey jacket uses innovative Sorona fiber that requires 30% less energy to produce than traditional materials!"
+      },
+      saga: {
+        title: "Saga at a Glance",
+        subtitle: "Model 5139 | Engineered for extremes",
+        origin: "China",
+        weight: "1.80 kg",
+        co2: "0.17 kg",
+        production: "395 units",
+        image: "https://www.8848altitude.com/storage/CCFD700BAC61F073390AB61B6689C2E95248197B86A46D0F2102F4AD4E281361/49d18ceb2df04ec88eb72ed5b5b5761e/jpg/media/6d93852bf5d94f2cbb5d427981e80b41/5139S9_3.jpg",
+        imageAlt: "Black Saga jacket (Model 5139)",
+        materials: [
+          {
+            name: "Shell Fabric: CH-831784-C02TLW",
+            composition: "100% Polyester",
+            weight: "0.16548 kg",
+            type: "Fabric",
+            origin: "Suzhou, China",
+            percentage: 9.19,
+            color: "#3b82f6"
+          },
+          {
+            name: "Lining: DMF002-3SDCE",
+            composition: "100% Polyester",
+            weight: "0.46229 kg",
+            type: "Lining",
+            origin: "Suzhou, China",
+            percentage: 25.68,
+            color: "#10b981"
+          },
+          {
+            name: "Insulation: STS-M3F",
+            composition: "76% Eco-M3F, 24% Sorona Fiber",
+            weight: "0.45880 kg",
+            type: "Insulation",
+            origin: "Quanzhou, China",
+            percentage: 25.49,
+            color: "#f59e0b"
+          },
+          {
+            name: "Zippers & Trims",
+            composition: "Mixed (Polyester, Nylon, Polyurethane)",
+            weight: "0.55376 kg",
+            type: "Hardware",
+            origin: "Shenzhen, China",
+            percentage: 30.76,
+            color: "#8b5cf6"
+          },
+          {
+            name: "Labels",
+            composition: "Mixed (Polyester, Cotton)",
+            weight: "0.15967 kg",
+            type: "Label",
+            origin: "Hong Kong, China",
+            percentage: 8.87,
+            color: "#ec4899"
+          }
+        ],
+        suppliers: [
+          { name: "Samtex", material: "Shell Fabric", location: "Suzhou, China" },
+          { name: "Smartex", material: "Lining", location: "Suzhou, China" },
+          { name: "CN YTL", material: "Insulation", location: "Quanzhou, China" },
+          { name: "YKK", material: "Zippers", location: "Shenzhen, China" },
+          { name: "Rudholm", material: "Labels", location: "Hong Kong, China" }
+        ],
+        journeys: [
+          { from: "Suzhou", to: "Dashiqiao", distance: "1,734 km", transport: "Truck" },
+          { from: "Pocheon", to: "Dashiqiao", distance: "945 km", transport: "Vessel + Truck" },
+          { from: "Quanzhou", to: "Dashiqiao", distance: "1,814 km", transport: "Truck" }
+        ],
+        finalShipping: "Dalian to Gothenburg (80 days by boat)",
+        funFact: "The Saga jacket's shell fabric uses a waterproof TPU lamination that's 100% recyclable!"
+      }
+    };
+
+    function applyFadeTransition(elements) {
+      if (!elements || !Array.isArray(elements)) return;
+      elements.forEach(element => {
+        if (element) {
+          element.classList.remove('fade-in');
+          element.classList.add('fade-out');
+        }
+      });
+      setTimeout(() => {
+        elements.forEach(element => {
+          if (element) {
+            element.classList.remove('fade-out');
+            element.classList.add('fade-in');
+          }
+        });
+      }, 300);
+    }
+
+    function updateJacketInfo(jacket) {
+      if (!jacketData[jacket]) {
+        console.error(`No data found for jacket: ${jacket}`);
+        return;
+      }
+
+      const data = jacketData[jacket];
+      const elements = {
+        jacketImage: document.getElementById('jacketImage'),
+        jacketTitle: document.getElementById('jacketTitle'),
+        jacketSubtitle: document.getElementById('jacketSubtitle'),
+        jacketOrigin: document.getElementById('jacketOrigin'),
+        jacketWeight: document.getElementById('jacketWeight'),
+        jacketCO2: document.getElementById('jacketCO2'),
+        jacketProduction: document.getElementById('jacketProduction'),
+        funFactText: document.getElementById('funFactText'),
+        finalShipping: document.getElementById('finalShipping'),
+        materialsList: document.getElementById('materialsList'),
+        journeyRoutes: document.getElementById('journeyRoutes'),
+        legendContainer: document.getElementById('legendContainer'),
+        pieChart: document.getElementById('pieChart'),
+        heroCard: document.querySelector('#hero .card'),
+        materialsCard: document.querySelector('#materials .card'),
+        journeyCard: document.querySelector('#journey .card'),
+        sustainabilityCard: document.querySelector('#sustainability .card'),
+        funfactCard: document.querySelector('#funfact .card')
+      };
+
+      // Apply fade transition to entire cards for a cohesive effect
+      const cardsToAnimate = [
+        elements.heroCard,
+        elements.materialsCard,
+        elements.journeyCard,
+        elements.sustainabilityCard,
+        elements.funfactCard
+      ];
+      applyFadeTransition(cardsToAnimate);
+
+      // Delay content update until fade-out is complete
+      setTimeout(() => {
+        // Update image
+        elements.jacketImage.src = data.image;
+        elements.jacketImage.alt = data.imageAlt;
+
+        // Update basic info
+        elements.jacketTitle.textContent = data.title;
+        elements.jacketSubtitle.textContent = data.subtitle;
+        elements.jacketOrigin.textContent = data.origin;
+        elements.jacketWeight.textContent = data.weight;
+        elements.jacketCO2.textContent = data.co2;
+        elements.jacketProduction.textContent = data.production;
+        elements.funFactText.textContent = data.funFact;
+        elements.finalShipping.textContent = data.finalShipping;
+
+        // Update materials list
+        elements.materialsList.innerHTML = data.materials.slice(0, 3).map(mat => `
+          <div class="flex items-center p-3 bg-gray-50 rounded-lg material-pill">
+            <div class="w-3 h-3 rounded-full mr-3" style="background-color: ${mat.color};"></div>
+            <div>
+              <p class="font-medium text-sm">${mat.name}</p>
+              <p class="text-xs text-gray-600">${mat.composition} | ${mat.weight}</p>
+            </div>
+          </div>
+        `).join('') + `
+          <button id="seeAllMaterialsBtn" class="w-full py-2.5 text-sm text-blue-600 font-medium bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors" aria-label="View all materials">
+            See All Materials
+          </button>
+        `;
+
+        // Update journey routes
+        elements.journeyRoutes.innerHTML = data.journeys.map(journey => `
+          <div class="card bg-gradient-to-r from-blue-50 to-green-50 p-4 rounded-lg border border-blue-100">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-semibold text-blue-800 text-sm">${journey.from}</span>
+              <span class="text-blue-600">→</span>
+              <span class="font-semibold text-green-700 text-sm">${journey.to}</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span>${journey.distance}</span>
+              <span class="bg-blue-100 px-2 py-1 rounded-full text-xs font-medium">${journey.transport}</span>
+            </div>
+          </div>
+        `).join('');
+
+        // Update legend and pie chart
+        elements.legendContainer.innerHTML = data.materials.map(mat => `
+          <div class="flex items-center">
+            <div class="w-4 h-4 rounded mr-2" style="background-color: ${mat.color};"></div>
+            <span class="text-sm">${mat.name.split(':')[0]}: ${mat.percentage.toFixed(1)}%</span>
+          </div>
+        `).join('');
+        elements.pieChart.style.background = `conic-gradient(
+          ${data.materials.map((mat, i) => {
+            const start = i === 0 ? 0 : data.materials.slice(0, i).reduce((sum, m) => sum + m.percentage, 0);
+            const end = start + mat.percentage;
+            return `${mat.color} ${start}% ${end}%`;
+          }).join(', ')}
+        )`;
+
+        // Re-attach event listener for the new button
+        const seeAllMaterialsBtn = document.getElementById('seeAllMaterialsBtn');
+        if (seeAllMaterialsBtn) {
+          seeAllMaterialsBtn.addEventListener('click', () => showMaterialsModal(jacket));
+        }
+      }, 300); // Match the fade-out duration
+    }
+
+    function showMaterialsModal(jacket) {
+      if (!jacketData[jacket]) return;
+      const data = jacketData[jacket];
+      const modal = document.getElementById('materialsModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const materialTableBody = document.getElementById('materialTableBody');
+      const suppliersList = document.getElementById('suppliersList');
+
+      modalTitle.textContent = `All Materials in ${jacket.charAt(0).toUpperCase() + jacket.slice(1)}`;
+      materialTableBody.innerHTML = data.materials.map(mat => `
+        <tr class="border-b last:border-b-0">
+          <td class="py-2">${mat.name}</td>
+          <td class="py-2">${mat.type}</td>
+          <td class="py-2">${mat.origin}</td>
+          <td class="py-2 text-right">${mat.weight}</td>
+        </tr>
+      `).join('');
+      suppliersList.innerHTML = data.suppliers.map(sup => `
+        <li>${sup.name} (${sup.material}) - ${sup.location}</li>
+      `).join('');
+
+      modal.classList.remove('hidden');
+      modal.focus();
+    }
+
+    // Event Listeners
+    const jacketSelector = document.getElementById('jacketSelector');
+    if (jacketSelector) {
+      jacketSelector.addEventListener('change', (e) => {
+        const selectedJacket = e.target.value;
+        if (selectedJacket) {
+          updateJacketInfo(selectedJacket);
+        }
+      });
+    } else {
+      console.error('Jacket selector element not found');
+    }
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      document.getElementById('materialsModal').classList.add('hidden');
+    });
+
+    document.getElementById('materialsModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('materialsModal')) {
+        document.getElementById('materialsModal').classList.add('hidden');
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !document.getElementById('materialsModal').classList.contains('hidden')) {
+        document.getElementById('materialsModal').classList.add('hidden');
+      }
+    });
+
+    // Initialize with Audrey
+    updateJacketInfo('audrey');
+  </script>
+</body>
+</html>
